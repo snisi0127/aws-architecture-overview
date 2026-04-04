@@ -21,3 +21,7 @@ aws-architecture-overview/
 - [docs/](docs/) - 設計ドキュメント
 - [diagrams/](diagrams/) - アーキテクチャ図
 - [images/](images/) - 画像リソース
+
+---
+
+🤖 Generated with [Claude Code](https://claude.ai/claude-code)
