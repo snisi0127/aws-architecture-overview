@@ -19,7 +19,7 @@ aws-architecture-overview/
 
 | 名称 | システム識別子 | 主な AWS サービス|
 | --- | --- | --- |
-| 共通費申請アプリ | [django-so](docs/django-so/README.md) | EC2, S3, Lambda, CloudFront, Route53 など |
+| 共通費申請アプリ | [django-so](docs/django-so/) | EC2, S3, Lambda, CloudFront, Route53 など |
 
 ## 免責事項
 
