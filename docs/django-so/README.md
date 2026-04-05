@@ -29,12 +29,12 @@
 
 | カテゴリ | 技術 |
 |---|---|
-| バックエンド | Python 3.7 / Django 2.1 |
-| フロントエンド | Bootstrap 4.0 |
-| データベース | SQLite3 |
+| バックエンド | Python / Django |
+| フロントエンド | Bootstrap |
+| データベース | SQLite |
 | アプリサーバ | uWSGI |
 | Webサーバ | Nginx |
-| OS | Amazon Linux 2023 (EC2) |
+| OS | Amazon Linux (EC2) |
 | 監視 | Mackerel（無料版） |
 
 ### 画面イメージ
@@ -234,15 +234,6 @@ S3 バックアップ・Route53 更新いずれも、アカウント間のリソ
 | AWS Lambda | 無料利用枠内を想定 |
 | AWS ACM | 無料（CloudFront との組み合わせ） |
 | Amazon DLM | スナップショットストレージ費のみ |
-
----
-
-## 6. 今後の展望
-
-| テーマ | 内容 |
-|---|---|
-| **Django バージョンアップ** | Django 2.1 → 4.2 LTS への移行 |
-| **インフラのコード化** | 手動構築手順を AWS CDK または CloudFormation でコード化（IaC） |
 
 ---
 
