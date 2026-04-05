@@ -11,9 +11,7 @@ AWSインフラ/クラウドシステムの紹介資料リポジトリです。
 ```
 aws-architecture-overview/
 ├── README.md          # 本ファイル
-├── docs/              # 設計ドキュメント・説明資料
-├── diagrams/          # アーキテクチャ図（draw.io, PlantUML等）
-└── images/            # 画像ファイル（スクリーンショット等）
+└── docs/              # 設計ドキュメント・説明資料
 ```
 
 ## 目次
