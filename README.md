@@ -21,6 +21,12 @@ aws-architecture-overview/
 - [diagrams/](diagrams/) - アーキテクチャ図
 - [images/](images/) - 画像リソース
 
+## システム一覧
+
+| 名称 | システム識別子 | 主な AWS サービス|
+| --- | --- | --- |
+| 共通費申請アプリ | django-so | EC2, S3, Lambda, CloudFront, Route53 など |
+
 ## 免責事項
 
 本リポジトリに含まれる内容はあくまで個人に依るものであり、所属する組織、および団体とは無関係です。
