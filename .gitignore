@@ -1,0 +1,10 @@
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+.env.*
+credentials
+credentials.json
+*_credentials
+*_secrets
