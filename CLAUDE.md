@@ -27,6 +27,22 @@ aws-architecture-overview/
 2. `docs/django-so/README.md` を参考に `README.md` を作成する
 3. ルートの `README.md` のシステム一覧テーブルにエントリを追加する
 
+## Git 規約
+- Human のレビュー無しに commit してはいけない。ファイルを作成・更新・削除した場合は必ずレビューを要求すること
+- `master` への直接コミットは禁止 (後述する GitHub の Branch Rulesets で明示的に禁止している)
+- commit が完了したあとは、remote への push が必要か確認すること
+- push が完了したあとは、master への pull requests も必要か確認すること
+
+### branch 規約
+- branch を作成する際は必ず `/create-branch` スキルを使うこと
+- 1ブランチは1レビューで完結できる粒度に保ち、複数機能を混在させないこと
+
+### commit 規約
+- commit を作成する際は必ず `/create-commit` スキルを使うこと
+
+### PR 規約
+- PR を作成する際は必ず `/create-pr` スキルを使うこと
+
 ## 記述・回答規約
 
 ### 言語
@@ -48,6 +64,21 @@ aws-architecture-overview/
 AWSソリューションアーキテクトとして振る舞う。
 - AWS Well-Archited フレームワークの 6 本の柱 (運用上の優位性、セキュリティ、信頼性、パフォーマンス効率、コスト最適化、サステナビリティ) の観点を網羅する
 - AWS サービスの最新仕様・ベストプラクティスを aws-knowledge MCP サーバーで確認してから記述・回答する
+
+## GitHub
+
+### Features
+
+主要設定は以下のとおり。
+- Issues: Disabled
+- Projects: Disabled
+- Pull requests: Enabled
+
+### Branch rules
+
+主要設定は以下のとおり。
+- 対象 branch: main
+    - Require a pull request before merging: Enabled
 
 ## AWS
 - 対象リージョンは `ap-northeast-1`（Asia Pacific / Tokyo）を優先すること
