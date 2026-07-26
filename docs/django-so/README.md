@@ -34,8 +34,8 @@
 | データベース | SQLite |
 | アプリサーバ | uWSGI |
 | Webサーバ | Nginx |
-| OS | Amazon Linux (EC2) |
-| 監視 | Mackerel（無料版） |
+| OS | Amazon Linux 2023 (EC2) |
+| 監視 | Mackerel（無料版）、外形監視（後述） |
 
 ### 画面イメージ
 
@@ -70,56 +70,87 @@
 
 ### 2-1. マルチアカウント構成
 
-AWS Organizations を用いてアカウントを階層管理。
+AWS Organizations とAWS IAM Identity Center（旧AWS SSO）を用いてアカウントを階層管理。開発環境（ローカル）を除き、AWS上は「管理用アカウント」「本番環境アカウント」「STG環境アカウント」の3アカウント構成。
 
 ```
-AWS Organizations root
-├── 管理アカウント、兼共用アカウント (ネットワーク・DNS層)
-│   ├── Amazon Route 53
-│   ├── Amazon CloudFront + AWS ACM
-│   ├── Amazon S3 (静的ファイル・Sorryコンテンツ・DBバックアップ)
-│   ├── Amazon EventBridge (クロスアカウントイベントバス)
-│   └── AWS Lambda (Route53 Aレコード自動更新)
-│
-├── 本番アカウント (アプリ層)
+管理用アカウント (ネットワーク・DNS層)
+├── Amazon Route 53
+├── Amazon CloudFront (本番用/STG用エンドポイント) + AWS ACM
+├── Amazon S3 (データバックアップ・システムバックアップ・静的ファイル・Sorryコンテンツ)
+├── Amazon EventBridge (クロスアカウントイベントバス)
+└── AWS Lambda (Route53 Aレコード自動更新)
+
+AWS組織 (AWS Organizations + AWS IAM Identity Center)
+├── 本番環境アカウント (アプリ層)
 │   ├── Amazon EC2 (Djangoアプリ)
 │   ├── AWS Systems Manager (自動化)
 │   ├── Amazon EventBridge (スケジュール・イベント発火)
 │   └── Amazon DLM (週次スナップショット)
 │
-└── 開発アカウント (アプリ層) ※本番と同構成
+└── STG環境アカウント (アプリ層) ※本番と同構成（バックアップ含む）
 ```
 
 **マルチアカウントの利点**
-- 本番／開発の障害影響を完全に分離
+- 本番／STGの障害影響を分離
 - IAMポリシーをアカウント単位で独立管理
-- AWS Organizations による一元的なアカウント管理
+- AWS Organizations + IAM Identity Center による一元的なアカウント・アクセス管理
 
 ---
 
 ### 2-2. 利用 AWS サービス一覧
 
-#### 共用アカウント
+#### 管理用アカウント
 
 | サービス | 用途 | Well-Architectedの観点 |
 |---|---|---|
 | **AWS Organizations** | 各アカウントの一元管理 | 運用上の優位性 |
+| **AWS IAM Identity Center** | アカウント横断のシングルサインオン・アクセス管理 | セキュリティ・運用上の優位性 |
 | **Amazon Route 53** | DNSおよびドメイン管理 | 信頼性 |
-| **Amazon CloudFront** | SSLアクセラレータ、静的ファイルキャッシュ、EC2/S3へのルーティング | パフォーマンス効率・セキュリティ |
+| **Amazon CloudFront** | SSLアクセラレータ、静的ファイルキャッシュ、EC2/S3へのルーティング（本番用・STG用エンドポイントを分離） | パフォーマンス効率・セキュリティ |
 | **AWS ACM** | SSL/TLS証明書の管理（自動更新） | セキュリティ・運用上の優位性 |
-| **Amazon S3** | 静的ファイル・Sorryコンテンツ配信、SQLiteバックアップ保管 | 信頼性・コスト最適化 |
+| **Amazon S3** | 静的ファイル・Sorryコンテンツ配信、データ／システムバックアップ保管 | 信頼性・コスト最適化 |
 | **Amazon EventBridge** | クロスアカウントのイベントバス（Lambda起動など） | 運用上の優位性 |
 | **AWS Lambda** | EC2起動時のRoute53 Aレコード自動更新 | 運用上の優位性・コスト最適化 |
 
-#### 各アカウント（本番・開発）
+#### 各アカウント（本番・STG）
 
 | サービス | 用途 | Well-Architectedの観点 |
 |---|---|---|
 | **Amazon EC2** | Djangoアプリのホスティング。`t3.micro` を年間 RI で購入 | パフォーマンス効率 |
 | **AWS Systems Manager** | EC2の定期起動・停止（Automation） | 運用上の優位性・コスト最適化 |
+| **AWS Systems Manager Parameter Store** | `SECRET_KEY`・メール送信設定など機密情報のコード外部管理 | セキュリティ・運用上の優位性 |
 | **Amazon EventBridge** | EC2の定期起動・停止スケジュール、イベント発火 | 運用上の優位性 |
 | **Amazon DLM** | EBSの週次スナップショット自動取得 | 信頼性 |
 | **S3 VPCエンドポイント** | EC2からS3へのプライベート通信 | セキュリティ |
+
+---
+
+### 2-3. CloudFront ⇔ EC2 のリクエストフロー
+
+```
+クライアント (PC/スマートフォン)
+  → Amazon CloudFront (本番用/STG用エンドポイント、AWS ACM による HTTPS)
+    → Amazon EC2: Nginx
+      → Amazon EC2: uWSGI / Django
+```
+
+- CloudFront のキャッシュポリシーでは、オリジンへ `Host` ヘッダーと Cookie・クエリ文字列のみを転送し、`Origin` や `X-Forwarded-Proto` 等は転送しない設計
+- キャッシュ TTL は Min/Default/Max とも 1 秒相当とし、動的コンテンツを考慮してキャッシュは実質無効化
+- 本番・STG で CloudFront のエンドポイントとオリジン（EC2）を分離し、環境間の影響を排除
+
+---
+
+### 2-4. 外形監視（共通基盤の利用）
+
+本アプリ専用ではなく、複数システムで共有する共通インフラ（別リポジトリで管理）の仕組みを利用して死活監視を行っている。
+
+| 項目 | 内容 | Well-Architectedの観点 |
+|---|---|---|
+| 監視方式 | AWS Lambda が対象 URL へ定期的に HTTP リクエストを送信 | 信頼性 |
+| スケジューリング | Amazon EventBridge Scheduler | 運用上の優位性 |
+| メトリクス | Amazon CloudWatch カスタムメトリクス | 信頼性 |
+| アラート通知 | CloudWatch Alarm → Amazon SNS 経由でメール通知 | 運用上の優位性・信頼性 |
+| アラームミュート | EC2 の定期停止時間帯に合わせて自動ミュート | コスト最適化・運用上の優位性 |
 
 ---
 
@@ -128,7 +159,6 @@ AWS Organizations root
 ### 3-1. EC2 定期起動・停止によるコスト削減
 
 サービス提供時間を限定し、深夜帯はEC2を停止。
-※なお、開発環境は常時停止。検証が必要な時のみ起動する。
 
 ```
 EventBridge (cron) → SSM Automation → EC2 起動/停止
@@ -148,8 +178,8 @@ EC2 停止中はパブリック IP が解放されるため、起動時に IP �
 ```
 EC2 起動
   → EventBridge (EC2 State Change 検知)
-    → クロスアカウントイベントバス (各アカウント → 共用アカウント)
-      → Lambda (共用アカウント。STS AssumeRole)
+    → クロスアカウントイベントバス (各アカウント → 管理用アカウント)
+      → Lambda (管理用アカウント。STS AssumeRole)
         → Route53 Aレコード UPSERT
 ```
 
@@ -166,13 +196,13 @@ EC2 起動
 S3 バックアップ・Route53 更新いずれも、アカウント間のリソースアクセスに **STS AssumeRole** を活用。
 
 ```
-本番アカウント (EC2 / Lambda)
+本番/STG環境アカウント (EC2 / Lambda)
   → sts:AssumeRole
-    → 共用アカウント (S3 / Route53)
+    → 管理用アカウント (S3 / Route53)
 ```
 
 - EC2 インスタンスロール → AssumeRole → S3 クロスアカウントアクセス
-- Lambda 実行ロール → AssumeRole → Route53 操作（共用アカウント）
+- Lambda 実行ロール → AssumeRole → Route53 操作（管理用アカウント）
 - 最小権限の原則に従い、必要なアクションのみを許可するポリシーを設計
 
 ---
@@ -211,11 +241,11 @@ S3 バックアップ・Route53 更新いずれも、アカウント間のリソ
 
 | 柱 | 取り組み |
 |---|---|
-| **運用上の優位性** | EventBridge + SSM による EC2 の自動起動・停止、Lambda による DNS 自動更新、DLM によるスナップショット自動取得 |
-| **セキュリティ** | CloudFront + ACM による HTTPS 強制、S3 VPC エンドポイントによるプライベート通信、STS AssumeRole による最小権限のクロスアカウントアクセス |
-| **信頼性** | マルチアカウント構成による環境分離、多層バックアップ（S3 日次 + DLM 週次）、CloudFront による高可用な配信 |
+| **運用上の優位性** | EventBridge + SSM による EC2 の自動起動・停止、Lambda による DNS 自動更新、DLM によるスナップショット自動取得、Parameter Store による設定値の一元管理、IAM Identity Center によるアクセス管理の一元化 |
+| **セキュリティ** | CloudFront + ACM による HTTPS 強制、S3 VPC エンドポイントによるプライベート通信、STS AssumeRole による最小権限のクロスアカウントアクセス、Parameter Store による機密情報のコード外部管理 |
+| **信頼性** | マルチアカウント構成による環境分離、多層バックアップ（S3 日次 + DLM 週次）、CloudFront による高可用な配信、外形監視（Lambda + CloudWatch + SNS）による異常検知 |
 | **パフォーマンス効率** | CloudFront による静的ファイルキャッシュ、サービス要件に合わせた EC2 インスタンスタイプ選定 |
-| **コスト最適化** | Elastic IP 不使用（Lambda + Route53 で代替）、S3 + CloudFront による静的配信でEC2負荷低減、マネージドサービス活用による運用コスト削減 |
+| **コスト最適化** | Elastic IP 不使用（Lambda + Route53 で代替）、S3 + CloudFront による静的配信でEC2負荷低減、マネージドサービス活用による運用コスト削減、外形監視アラームの定期停止時間帯自動ミュート |
 | **サステナビリティ** | EC2 夜間停止によるコンピューティングリソースの節約 |
 
 ---
@@ -226,7 +256,7 @@ S3 バックアップ・Route53 更新いずれも、アカウント間のリソ
 
 | サービス | 備考 |
 |---|---|
-| Amazon EC2 | 軽量インスタンスタイプ (`t3.micro`) の利用、年間 RI の利用
+| Amazon EC2 | 軽量インスタンスタイプ (`t3.micro`) の利用、年間 RI の利用 |
 | Amazon VPC | パブリック IPv4 の利用料 |
 | Amazon S3 | データ容量が小さいため数円以下 |
 | Amazon CloudFront | 無料利用枠内を想定 |
@@ -234,6 +264,8 @@ S3 バックアップ・Route53 更新いずれも、アカウント間のリソ
 | AWS Lambda | 無料利用枠内を想定 |
 | AWS ACM | 無料（CloudFront との組み合わせ） |
 | Amazon DLM | スナップショットストレージ費のみ |
+| AWS Systems Manager Parameter Store | Standard パラメータは無料 |
+| AWS IAM Identity Center | 無料 |
 
 ---
 
