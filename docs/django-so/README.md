@@ -40,17 +40,38 @@
 ### 画面イメージ
 
 #### トップ画面
-![デモ画像1](./demo1.png)
+
+<table>
+<tr>
+<td align="center" valign="top">PC</td>
+<td align="center" valign="top">スマートフォン</td>
+</tr>
+<tr>
+<td valign="top"><img src="./demo1.png" width="600" alt="デモ画像1"></td>
+<td valign="top"><img src="./demo1_sp.png" width="200" alt="デモ画像1_sp"></td>
+</tr>
+</table>
 
 #### 申請画面
-![デモ画像2](./demo2.png)
+
+<table>
+<tr>
+<td align="center" valign="top">PC</td>
+<td align="center" valign="top">スマートフォン</td>
+</tr>
+<tr>
+<td valign="top"><img src="./demo2.png" width="350" alt="デモ画像2"></td>
+<td valign="top"><img src="./demo2_sp.png" width="200" alt="デモ画像2_sp"></td>
+</tr>
+</table>
 
 #### 通知メール
-![デモ画像3](./demo3.png)
+
+<p align="center"><img src="./demo3.png" width="300" alt="デモ画像3"></p>
 
 #### メンテナンス画面
-![デモ画像4](./demo4.png)
 
+<p align="center"><img src="./demo4.png" width="600" alt="デモ画像4"></p>
 ---
 
 ## 2. AWS アーキテクチャ
