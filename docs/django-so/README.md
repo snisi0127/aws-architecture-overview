@@ -41,29 +41,21 @@
 
 #### トップ画面
 
-<table>
-<tr>
-<td align="center" valign="top">PC</td>
-<td align="center" valign="top">スマートフォン</td>
-</tr>
-<tr>
-<td valign="top"><img src="./demo1.png" width="600" alt="デモ画像1"></td>
-<td valign="top"><img src="./demo1_sp.png" width="200" alt="デモ画像1_sp"></td>
-</tr>
-</table>
+<p align="center"><img src="./demo1.png" width="600" alt="デモ画像1"></p>
+
+<details>
+<summary>参考：スマートフォン版</summary>
+<p align="center"><img src="./demo1_sp.png" width="200" alt="デモ画像1_sp"></p>
+</details>
 
 #### 申請画面
 
-<table>
-<tr>
-<td align="center" valign="top">PC</td>
-<td align="center" valign="top">スマートフォン</td>
-</tr>
-<tr>
-<td valign="top"><img src="./demo2.png" width="350" alt="デモ画像2"></td>
-<td valign="top"><img src="./demo2_sp.png" width="200" alt="デモ画像2_sp"></td>
-</tr>
-</table>
+<p align="center"><img src="./demo2.png" width="350" alt="デモ画像2"></p>
+
+<details>
+<summary>参考：スマートフォン版</summary>
+<p align="center"><img src="./demo2_sp.png" width="200" alt="デモ画像2_sp"></p>
+</details>
 
 #### 通知メール
 
@@ -72,6 +64,7 @@
 #### メンテナンス画面
 
 <p align="center"><img src="./demo4.png" width="600" alt="デモ画像4"></p>
+
 ---
 
 ## 2. AWS アーキテクチャ
