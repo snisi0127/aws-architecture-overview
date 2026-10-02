@@ -13,9 +13,9 @@
 
 | 項目 | 内容 |
 |---|---|
-| 本番 URL | XXXX |
-| STG URL | XXXX |
-| 開発 URL | XXXX |
+| 本番 URL | xxx |
+| STG URL | xxx |
+| 開発 URL | xxx |
 | 開発体制 | 個人開発（1名） |
 
 ### アプリの主な機能
