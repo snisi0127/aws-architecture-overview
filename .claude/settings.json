@@ -3,10 +3,18 @@
   "language": "japanese",
   "permissions": {
     "allow": [
-      "Bash(git:*)",
-      "Bash(pip:*)"
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch --show-current)",
+      "Bash(git rev-parse:*)"
     ],
     "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
       "Bash(rm:*)",
       "Bash(mv:*)",
       "Bash(shutdown:*)",
