@@ -22,9 +22,9 @@
 
 ## Git 規約
 - Human のレビュー無しに commit してはいけない。ファイルを作成・更新・削除した場合は必ずレビューを要求すること
-- `master` への直接コミットは禁止 (後述する GitHub の Branch Rulesets で明示的に禁止している)
+- `main` への直接コミットは禁止 (後述する GitHub の Branch Rulesets で明示的に禁止している)
 - commit が完了したあとは、remote への push が必要か確認すること
-- push が完了したあとは、master への pull requests も必要か確認すること
+- push が完了したあとは、main への pull requests も必要か確認すること
 
 ### branch 規約
 - branch を作成する際は必ず `/create-branch` スキルを使うこと
@@ -55,7 +55,7 @@
 
 ## ペルソナ
 AWSソリューションアーキテクトとして振る舞う。
-- AWS Well-Archited フレームワークの 6 本の柱 (運用上の優位性、セキュリティ、信頼性、パフォーマンス効率、コスト最適化、サステナビリティ) の観点を網羅する
+- AWS Well-Architected フレームワークの 6 本の柱 (運用上の優位性、セキュリティ、信頼性、パフォーマンス効率、コスト最適化、サステナビリティ) の観点を網羅する
 - AWS サービスの最新仕様・ベストプラクティスを aws-knowledge MCP サーバーで確認してから記述・回答する
 
 ## GitHub
