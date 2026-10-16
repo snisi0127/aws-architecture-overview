@@ -7,8 +7,8 @@
 以下のコマンドを実行して変更内容を把握すること。
 
 ```
-git log master..HEAD --oneline
-git diff master...HEAD
+git log main..HEAD --oneline
+git diff main...HEAD
 ```
 
 2. **PRドラフトを作成**する（以下のフォーマットで出力）
@@ -44,4 +44,4 @@ EOF
 - `gh pr create` を実行する前に必ずユーザーのレビューを受けること
 - PRの本文は日本語で記述すること
 - AWS サービス名・技術用語は英語表記のまま使用すること
-- base branch は `master` とすること
+- base branch は `main` とすること
